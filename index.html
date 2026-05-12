@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padhnu</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts: Playfair Display + DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+</head>
+<body class="light-mode">
+
+  <!-- ═══════════════════════════════════════
+       BACKGROUND LAYER
+  ═══════════════════════════════════════ -->
+  <div class="bg-layer">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <canvas id="particleCanvas"></canvas>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       INTRO SPLASH SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="splash" class="splash">
+    <div class="splash-inner">
+      <div class="splash-petals">
+        <span>😎</span><span>✨</span><span>😏</span>
+      </div>
+      <h1 class="splash-title">Merisha's<br/><em>Study Clock</em></h1>
+      <p class="splash-sub">Aba chei padhnu hai🙋‍♂️</p>
+      <div class="splash-loader">
+        <div class="splash-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN APP WRAPPER
+  ═══════════════════════════════════════ -->
+  <div id="app" class="app hidden">
+
+    <!-- ── TOP HEADER BAR ── -->
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-icon">😈</span>
+        <span class="brand-name" id="brandName">Padhai karao yantra</span>
+      </div>
+      <div class="top-controls">
+        <button id="themeToggle" class="icon-btn" title="Toggle theme" aria-label="Toggle dark/light mode">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button id="soundToggle" class="icon-btn" title="Toggle sound" aria-label="Toggle ambient sound">
+          <svg id="soundIcon" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.54 8.46a5 5 0 010 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── GREETING + CLOCK ── -->
+    <section class="greeting-section">
+      <div class="greeting-left">
+        <p id="greeting" class="greeting-text">Good Morning, Merisha ☀️</p>
+        <p id="currentDate" class="date-text">Loading date...</p>
+      </div>
+      <div class="live-clock-wrap">
+        <span id="liveClock" class="live-clock">00:00:00</span>
+      </div>
+    </section>
+
+    <!-- ── MOTIVATIONAL QUOTE RIBBON ── -->
+    <div class="quote-ribbon">
+      <div class="quote-inner">
+        <span class="quote-icon">💬</span>
+        <p id="quoteText" class="quote-text"></p>
+      </div>
+    </div>
+
+    <!-- ── MAIN GRID: TIMER + SIDEBAR ── -->
+    <main class="main-grid">
+
+      <!-- ────── TIMER CARD ────── -->
+      <div class="timer-card card">
+
+        <!-- Mode Selector -->
+        <div class="mode-tabs">
+          <button class="mode-tab active" data-mode="focus">Focus</button>
+          <button class="mode-tab" data-mode="short">Short Break</button>
+          <button class="mode-tab" data-mode="long">Long Break</button>
+        </div>
+
+        <!-- Circular SVG Timer Ring -->
+        <div class="timer-ring-wrap" id="timerRingWrap">
+          <svg class="timer-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background ring -->
+            <circle class="ring-bg" cx="150" cy="150" r="130"/>
+            <!-- Progress ring -->
+            <circle class="ring-progress" id="ringProgress" cx="150" cy="150" r="130"/>
+          </svg>
+          <!-- Center display -->
+          <div class="timer-center">
+            <div id="sessionEmoji" class="session-emoji">🎯</div>
+            <div id="timerDisplay" class="timer-display">25:00</div>
+            <div id="timerLabel" class="timer-label">FOCUS TIME</div>
+            <div id="progressPct" class="progress-pct">0%</div>
+          </div>
+          <!-- Glow ring overlay -->
+          <div class="ring-glow" id="ringGlow"></div>
+        </div>
+
+        <!-- Timer Controls -->
+        <div class="timer-controls">
+          <button class="ctrl-btn skip-btn" id="skipBtn" title="Skip session">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 4l10 8-10 8V4z" fill="currentColor"/><rect x="19" y="4" width="2" height="16" rx="1" fill="currentColor"/></svg>
+          </button>
+          <button class="ctrl-btn start-btn" id="startBtn">
+            <span id="startBtnText">Start</span>
+            <svg id="startIcon" viewBox="0 0 24 24" fill="none"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+          </button>
+          <button class="ctrl-btn reset-btn" id="resetBtn" title="Reset">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9 9 9 0 00-3.4.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 3v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <!-- Session Counter -->
+        <div class="session-counter">
+          <span class="counter-label">Session</span>
+          <div class="counter-dots" id="counterDots"></div>
+          <span id="sessionCountNum" class="counter-num">0 / 4</span>
+        </div>
+
+        <!-- Custom Timer Trigger -->
+        <button id="customTimerBtn" class="custom-timer-trigger">
+          <svg viewBox="0 0 24 24" fill="none" width="15"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Custom Timer
+        </button>
+
+        <!-- Ambient Sound Panel -->
+        <div class="ambient-panel">
+          <p class="ambient-title">🎵Ambient sounds</p>
+          <p class= 
+          <div class="ambient-btns">
+            <button class="amb-btn" data-sound="rain" title="Rain">🌧️ Rain</button>
+            <button class="amb-btn" data-sound="cafe" title="Café">☕ Café</button>
+            <button class="amb-btn" data-sound="lofi" title="Lo-fi">🎶 Lo-fi</button>
+            <button class="amb-btn" data-sound="forest" title="Forest">🌿 Forest</button>
+          </div>
+          <div class="volume-row">
+            <svg viewBox="0 0 24 24" fill="none" width="16"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" stroke-width="2"/></svg>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="40"/>
+            <svg viewBox="0 0 24 24" fill="none" width="16"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" stroke-width="2"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" stroke="currentColor" stroke-width="2"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────── SIDEBAR ────── -->
+      <aside class="sidebar">
+
+        <!-- Stats Card -->
+        <div class="stats-card card">
+          <h3 class="card-title">📊 Today's Stats</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-ring-wrap">
+                <svg viewBox="0 0 60 60" class="stat-ring-svg">
+                  <circle class="stat-ring-bg" cx="30" cy="30" r="24"/>
+                  <circle class="stat-ring-fill" id="focusRing" cx="30" cy="30" r="24"/>
+                </svg>
+                <span class="stat-ring-num" id="totalSessions">0</span>
+              </div>
+              <p class="stat-label">Sessions</p>
+            </div>
+            <div class="stat-item">
+              <div class="stat-ring-wrap">
+                <svg viewBox="0 0 60 60" class="stat-ring-svg">
+                  <circle class="stat-ring-bg" cx="30" cy="30" r="24"/>
+                  <circle class="stat-ring-fill" id="timeRing" cx="30" cy="30" r="24"/>
+                </svg>
+                <span class="stat-ring-num" id="totalTime">0m</span>
+              </div>
+              <p class="stat-label">Study Time</p>
+            </div>
+            <div class="stat-item">
+              <div class="stat-ring-wrap">
+                <svg viewBox="0 0 60 60" class="stat-ring-svg">
+                  <circle class="stat-ring-bg" cx="30" cy="30" r="24"/>
+                  <circle class="stat-ring-fill" id="streakRing" cx="30" cy="30" r="24"/>
+                </svg>
+                <span class="stat-ring-num" id="streakCount">🔥0</span>
+              </div>
+              <p class="stat-label">Streak</p>
+            </div>
+          </div>
+
+          <!-- Daily Goal Progress -->
+          <div class="goal-section">
+            <div class="goal-header">
+              <span class="goal-label">Daily Goal</span>
+              <span id="goalPct" class="goal-pct">0%</span>
+            </div>
+            <div class="goal-bar-wrap">
+              <div class="goal-bar" id="goalBar" style="width:0%"></div>
+            </div>
+            <p class="goal-sub" id="goalSub">0 / 4 sessions completed</p>
+          </div>
+
+          <!-- Productivity Score -->
+          <div class="prod-score">
+            <span class="prod-label">✨ Productivity</span>
+            <span id="prodScore" class="prod-num">0%</span>
+          </div>
+        </div>
+
+        <!-- To-Do Card -->
+        <div class="todo-card card">
+          <h3 class="card-title">📝 Study Tasks</h3>
+          <div class="todo-input-row">
+            <input type="text" id="todoInput" class="todo-input" placeholder="Add a task for today..."/>
+            <button id="todoAddBtn" class="todo-add-btn" aria-label="Add task">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <ul id="todoList" class="todo-list"></ul>
+          <div class="todo-footer">
+            <span id="todoCount" class="todo-count">0 tasks</span>
+            <button id="clearDone" class="clear-btn">Clear done</button>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="shortcuts-card card">
+          <h3 class="card-title">⌨️ Shortcuts</h3>
+          <div class="shortcut-list">
+            <div class="shortcut-item"><kbd>Space</kbd><span>Start / Pause</span></div>
+            <div class="shortcut-item"><kbd>R</kbd><span>Reset</span></div>
+            <div class="shortcut-item"><kbd>S</kbd><span>Skip session</span></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SESSION COMPLETE CELEBRATION OVERLAY
+  ═══════════════════════════════════════ -->
+  <div id="celebrationOverlay" class="celebration-overlay hidden">
+    <div class="celebration-card">
+      <div class="confetti-wrap" id="confettiWrap"></div>
+      <div class="cele-emoji" id="celeEmoji">🎉</div>
+      <h2 class="cele-title" id="celeTitle">Session Complete!</h2>
+      <p class="cele-msg" id="celeMsg">You crushed it, Merisha! 💪</p>
+      <button id="celeClose" class="cele-close-btn">Continue ✨</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       CUSTOM TIMER MODAL
+  ═══════════════════════════════════════ -->
+  <div id="customTimerModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">⏱️ Custom Timer</h2>
+        <button id="customTimerClose" class="modal-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="custom-presets">
+        <p class="custom-presets-label">Quick presets</p>
+        <div class="preset-pills">
+          <button class="preset-pill" data-focus="20" data-short="5"  data-long="10">20 / 5 / 10</button>
+          <button class="preset-pill" data-focus="25" data-short="5"  data-long="15">25 / 5 / 15</button>
+          <button class="preset-pill" data-focus="30" data-short="10" data-long="20">30 / 10 / 20</button>
+          <button class="preset-pill" data-focus="45" data-short="10" data-long="20">45 / 10 / 20</button>
+          <button class="preset-pill" data-focus="50" data-short="10" data-long="30">50 / 10 / 30</button>
+          <button class="preset-pill" data-focus="90" data-short="15" data-long="30">90 / 15 / 30</button>
+        </div>
+      </div>
+
+      <div class="custom-inputs">
+        <div class="custom-field">
+          <label class="custom-label">🎯 Focus</label>
+          <div class="custom-spinner">
+            <button class="spin-btn" data-target="customFocus" data-delta="-1">−</button>
+            <input type="number" id="customFocus" class="spin-input" value="25" min="1" max="180"/>
+            <button class="spin-btn" data-target="customFocus" data-delta="1">+</button>
+          </div>
+          <span class="custom-unit">min</span>
+        </div>
+        <div class="custom-field">
+          <label class="custom-label">☕ Short Break</label>
+          <div class="custom-spinner">
+            <button class="spin-btn" data-target="customShort" data-delta="-1">−</button>
+            <input type="number" id="customShort" class="spin-input" value="5" min="1" max="60"/>
+            <button class="spin-btn" data-target="customShort" data-delta="1">+</button>
+          </div>
+          <span class="custom-unit">min</span>
+        </div>
+        <div class="custom-field">
+          <label class="custom-label">🌸 Long Break</label>
+          <div class="custom-spinner">
+            <button class="spin-btn" data-target="customLong" data-delta="-1">−</button>
+            <input type="number" id="customLong" class="spin-input" value="15" min="1" max="90"/>
+            <button class="spin-btn" data-target="customLong" data-delta="1">+</button>
+          </div>
+          <span class="custom-unit">min</span>
+        </div>
+      </div>
+
+      <button id="applyCustomTimer" class="apply-btn">
+        Apply Timer ✨
+      </button>
+      <p class="custom-note">Changes apply immediately and reset the current session.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</htm
