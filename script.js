@@ -758,6 +758,15 @@ function toggleSound() {
    EVENT LISTENERS
 ════════════════════════════════════ */
 function setupListeners() {
+  // NEW: Visibility logic to stop sounds when leaving tab
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopAmbient();
+    } else {
+      if (state.soundEnabled && state.activeAmbient) playAmbient(state.activeAmbient);
+    }
+  });
+
   // Mode tabs
   document.querySelectorAll(".mode-tab").forEach(btn => {
     btn.addEventListener("click", () => setMode(btn.dataset.mode));
